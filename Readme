@@ -1,25 +1,246 @@
-# Multiplayer Snake game #
+Multiplayer Snake game
 Setting up application game using docker
 
-###### This repository is part of DevSecOps udemy Tutorial ######
-We provide training in DevSecOps (DevOps + Security).
-Only available professional course for all (Freshers, Build & Release, DevOps, Infosec, Application Support, Infrastructure, QA) Professionals .
-https://www.udemy.com/course/devsecops/?referralCode=7A73B2D1AD95E1F68C1F
-################################################################
+Application Setup
+Step 1: Log in to the Application Server
+Access your application server via SSH or any remote terminal client.
+
+Ensure you have administrative privileges.
+
+Step 2: Install docker-compose
+Run the following command to install Docker Compose on your application server:
 
 
-all courses links:
 
-### reachout to me for available discounts if any for the month ###
+sudo apt install docker-compose
+Verify the installation:
 
-#Jenkins #ci #cd https://www.udemy.com/course/jenkins-zero-to-pro/?referralCode=
 
-#DevSecOps #DevOps https://www.udemy.com/course/devsecops/?referralCode=7A73B2D1AD95E1F68C1F
 
-#docker #container #docker-compose #k8s https://www.udemy.com/course/docker-devops/?referralCode=ECEDBD3CEC6B99717566
+docker-compose --version
+Step 3: Create a Directory for the Application
+Create a working directory named app-test:
 
-#SonarQube #infosec #security #sast #devops #devsecops https://www.udemy.com/course/sonarqube-master-sonarqube-within-a-few-hours-2020/?referralCode=992044CBD2B0CAA48856
 
-#google #cloud #serverless #devops #devsecops #computing https://www.udemy.com/course/google-cloud-serverless
 
-#devops #certification #aws #DOP-C01 #certification https://www.udemy.com/course/aws-devops-practice-test/?referralCode=D8209AD57D310A001C78
+mkdir app-test
+cd app-test
+Step 4: Clone the Application Repository
+Clone the GitHub repository containing the application code:
+
+
+
+git clone https://github.com/vishalpapan/devsecops-multiplayersnake
+Move into the application directory:
+
+
+
+cd devsecops-multiplayersnake
+Step 5: Create a Docker Build for the Application
+Build the Docker image for your application:
+
+
+
+docker build . -t vishalpapan/snake:new
+Verify the image creation:
+
+
+
+docker images
+Step 6: Push the Image to Docker Hub
+Log in to your Docker Hub account (if not already logged in):
+
+
+
+docker login
+Push the image to Docker Hub:
+
+
+
+docker push vishalpapan/snake:new
+Create a Docker-Compose File
+Create a docker-compose.yml file in the root of the application directory:
+
+
+
+version: '3'
+services:
+  snake-game:
+    image: vishalpapan/snake:new
+    ports:
+      - "80:3000"
+Commit the docker-compose.yml file to GitHub:
+
+
+
+git add docker-compose.yml
+git commit -m "Added docker-compose file for deployment"
+git push origin main
+Run the Application
+Step 1: Pull the Image
+Pull the image from Docker Hub:
+
+
+
+docker-compose pull
+Step 2: Start the Application
+Run the container using docker-compose:
+
+
+
+docker-compose up -d
+Verify the container is running:
+
+
+
+docker ps
+Step 3: Access the Application
+Open a browser and access the application at the server's IP:
+
+
+
+http://192.168.56.101
+Ensure the application is running and accessible.
+
+Map Domain to the Application
+Update the DNS configuration of the domain to point to the application server's IP address (192.168.56.101).
+
+Verify the domain is mapped correctly:
+
+
+
+http://multiplayersnake.tk
+Confirm the game is accessible via the domain.
+
+Troubleshooting
+Error: Unable to bind port 80:3000
+
+Issue: The port 80 might already be in use on the server.
+
+Fix: Modify the docker-compose.yml file to use a different host port:
+
+
+
+ports:
+  - "8080:3000"
+Restart the application:
+
+
+
+docker-compose up -d
+Access the application at:
+
+
+
+http://192.168.56.101:8080
+Error: Docker image not found
+
+Issue: Incorrect image name in docker-compose.yml.
+
+Fix: Ensure the correct image name is used:
+
+
+
+image: vishalpapan/snake:new
+Pull the image again:
+
+
+
+docker-compose pull
+Error: Application not accessible
+
+Issue: Firewall rules or security group restrictions.
+
+Fix: Open the required ports (e.g., 80 or 8080) in your server’s firewall or cloud security group settings.
+
+DNS not resolving
+
+Issue: Domain http://multiplayersnake.tk not pointing to the correct IP.
+
+Fix: Verify DNS configuration and ensure A record maps to 192.168.56.101.
+
+Note: The troubleshooting steps are based on issues encountered during deployment, and fix #1 (changing the port to 8080) resolved the port binding issue successfully.
+
+Summary of Steps for Troubleshooting and Setting Up Git Repository
+1. Resolve Port Conflict (Docker Setup)
+Issue: Docker service couldn't start because port 80 was already in use.
+
+Steps Taken:
+
+Identified the process using port 80 with:
+
+
+
+sudo lsof -i :80
+Stopped the conflicting process using:
+
+
+
+sudo systemctl stop <service-name>
+ or killed the process with:
+
+
+
+sudo kill -9 <PID>
+2. SSH Key Setup for GitHub Authentication
+Issue: Git operations failed due to deprecated password authentication.
+
+Steps Taken:
+
+Generated a new SSH key pair:
+
+
+
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+Added the public key (~/.ssh/id_rsa.pub) to the GitHub account under Settings > SSH and GPG Keys.
+
+Tested the SSH connection with:
+
+
+
+ssh -T git@github.com
+3. Configure Remote Repository for SSH
+Issue: Remote URL was still using HTTPS, leading to authentication issues.
+
+Steps Taken:
+
+Updated the Git remote URL to use SSH:
+
+
+
+git remote set-url origin git@github.com:vishalpapan/<repository>.git
+Verified the updated remote URL:
+
+
+
+git remote -v
+4. Push Code to GitHub
+Issue: Initial push failed due to no existing commits or incorrect branch reference.
+
+Steps Taken:
+
+Checked and created the main branch:
+
+
+
+git branch
+git checkout -b main
+Added and committed the changes:
+
+
+
+git add .
+git commit -m "Initial commit"
+Pushed the changes to GitHub:
+
+
+
+git push -u origin main
+In some cases, directly running git push resolved the issue when the upstream branch was already configured.
+
+Key Learnings
+Always verify the remote URL (git remote -v) to ensure it matches your intended repository.
+
+Use SSH for secure and seamless Git operations on GitHub.
+
+Resolve port conflicts by identifying and stopping/terminating processes using critical ports like 80.
